@@ -41,8 +41,25 @@ client.on(Events.MessageCreate, async (message) => {
     // Otherwise, treat as AI chat
     try {
         await message.channel.sendTyping();
-        const response = await chat(message.author.id, message.content);
-        await message.reply(response);
+        let response = await chat(message.author.id, message.content);
+
+        // Command bridge logic: Detect [[COMMAND]] !play ...
+        const commandRegex = /\[\[COMMAND\]\]\s*(!\w+.*)/i;
+        const match = response.match(commandRegex);
+
+        if (match) {
+            const botCommand = match[1].trim();
+            // Remove the command tag from the visible AI response
+            response = response.replace(commandRegex, '').trim();
+
+            // Send the friendly/rude reply first
+            if (response) await message.reply(response);
+
+            // Then send the real command for Somua Bot to pick up
+            await message.channel.send(botCommand);
+        } else {
+            await message.reply(response);
+        }
     } catch (error) {
         console.error('Chat error:', error);
         await message.reply('❌ เกิดข้อผิดพลาด ลองใหม่อีกทีนะครับ');
