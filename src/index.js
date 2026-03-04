@@ -43,8 +43,8 @@ client.on(Events.MessageCreate, async (message) => {
         await message.channel.sendTyping();
         let response = await chat(message.author.id, message.content);
 
-        // Command bridge logic: Detect [[COMMAND]] !play ...
-        const commandRegex = /\[\[COMMAND\]\]\s*(!\w+.*)/i;
+        // Command bridge logic: Detect [[COMMAND]] /play ... or !play ...
+        const commandRegex = /\[\[COMMAND\]\]\s*([!\/]\w+.*)/i;
         const match = response.match(commandRegex);
 
         if (match) {
